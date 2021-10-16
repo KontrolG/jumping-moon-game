@@ -1,46 +1,62 @@
-# Getting Started with Create React App
+# Juego online
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Primera fase
 
-## Available Scripts
+1. Sistemas de salas.
 
-In the project directory, you can run:
+2. Sistema de chat en vivo.
 
-### `npm start`
+3. Sistema de emparejamiento según nivel o caracteristicas (país, etc).
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Juego
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+### Tecnología
 
-### `npm test`
+- WebGL/Canvas API
+- ReactJS + ElectronJS
+- NodeJS + MongoDB
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Game Engine
 
-### `npm run build`
+| Nombre   | Fallback a canvas | 3D  | Tiene API en ReactJS | DX (out of ten) |
+| -------- | ----------------- | --- | -------------------- | --------------- |
+| Three.js | 1                 | 1   | react-three-fiber    | 10              |
+| Three.js | 1                 | 1   | react-babylonjs      | 7               |
+| PixiJS   | 1                 | 0   | @inlet/react-pixi    |
+| Phaser   | 1                 | 0   | react-phaser-fiber   |
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Herramientas
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Librerías soporte
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- drei.
+- gltfjsx (GLTF to JSX).
 
-### `npm run eject`
+### Extensiones de VSC
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+### Assets
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- https://quaternius.com/
+- https://www.artstation.com/
+- https://www.mixamo.com/
+- https://ambientcg.com/
+- https://www.solarsystemscope.com/textures/
+- https://sketchfab.com/
+- https://modelviewer.dev/
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+## Componentes
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+## Preguntas
 
-## Learn More
+- ¿Como aplicar transformaciones correctamente?
+- Determinar la velocidad con la que rota o se mueve un objeto.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Notas
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+- npm install --save use-deep-compare-effect
+- Accede a todas las funcionalidades disponibles de THREE usando sus elementos JSX con lowerCamelCase. Ejemplo <gridHelper />.
+- Algunas clases requieren argumentos que están dentro del context, por lo cual hay que agregar logica adicional para obtener esos argumentos, por ejemplo, usar useThree().
+- Se puede usar <Suspense> a nivel de componentes para mostrar skeletons mientras cargan texturas. ¿Es recomendable?. Al parecer igualmente se congela toda la aplicación mientras esta cargado. **Analizar**.
+- Usar onPointerOver y onPointerOut para crear efecto de hover.
+- Usar elemento Html de drei para generar UI rapidamente.
+- Alternar movimiento de caracter con onKeyDown y onKeyUp, para evitar muchos re-renders.

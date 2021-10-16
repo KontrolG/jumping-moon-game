@@ -1,26 +1,38 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import { Canvas } from "@react-three/fiber";
+import { Moon } from "./components/moon";
+import { ComponentPropsWithoutRef, Suspense, useState } from "react";
+import { OrbitControls, Stars } from "@react-three/drei";
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Canvas camera={{ fov: 75, near: 0.1, far: 1000, position: [0, 0, 5] }}>
+        <Suspense fallback={null}>
+          <axesHelper />
+          <gridHelper args={[200, 100]} />
+          <ambientLight color="black" />
+          <Stars />
+          <PointLight position={[5, 0, 0]} rotation={[0, 4.75, 0]} />
+          <OrbitControls enableZoom />
+          <Moon position={[-5, 0, 0]} />
+        </Suspense>
+      </Canvas>
     </div>
   );
 }
 
 export default App;
+
+function PointLight(props: ComponentPropsWithoutRef<"pointLight">) {
+  const [pointerLight, setPointerLight] = useState(null);
+
+  return (
+    <>
+      <pointLight {...props} ref={setPointerLight}>
+        <arrowHelper />
+      </pointLight>
+      {pointerLight ? <pointLightHelper args={[pointerLight, 1]} /> : null}
+    </>
+  );
+}
