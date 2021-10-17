@@ -1,13 +1,23 @@
 import { Mesh } from "three";
 import { useRef } from "react";
+import { BoxProps, useBox } from "@react-three/cannon";
 
-function Box(props: JSX.IntrinsicElements["mesh"]) {
-  const mesh = useRef<Mesh>(null!);
+function Box(props: BoxProps) {
+  const [ref] = useBox(() => ({
+    type: "Static",
+    mass: 10,
+    rotation: [-Math.PI / 2, 0, 0],
+    args: [10, 10, 0.5],
+    onCollide: (e: any) => {
+      console.log("BOX:", e);
+    },
+    ...props
+  }));
 
   return (
-    <mesh {...props} ref={mesh} scale={1}>
+    <mesh ref={ref} scale={1}>
       <arrowHelper />
-      <boxGeometry args={[1, 1, 1]} />
+      <boxGeometry args={[10, 10, 0.5]} />
       <meshStandardMaterial color="orange" />
     </mesh>
   );

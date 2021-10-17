@@ -1,19 +1,26 @@
+import { useSphere } from "@react-three/cannon";
 import { useTexture } from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import map from "./material-map.jpg";
 import normalMap from "./material-normal-map-2.jpg";
 
-function Moon(props: JSX.IntrinsicElements["mesh"]) {
-  const [rotationY, setRotationY] = useState(0);
+function Moon(props: any) {
+  const [isMovingForward, setIsMovingFoward] = useState(false);
+  const [ref, api] = useSphere(() => ({
+    mass: 10,
+    ...props
+  }));
   const textureProps = useTexture({ map, normalMap });
 
-  useFrame((state, delta) => {
-    setRotationY((y) => y + 0.005);
-  });
+  useEffect(() => {
+    api.velocity.set(isMovingForward ? 5 : 0, 0, 0);
+  }, [api.velocity, isMovingForward]);
 
   return (
-    <mesh {...props} rotation={[0, rotationY, 0]}>
+    <mesh
+      ref={ref}
+      onClick={() => setIsMovingFoward((isMovingForward) => !isMovingForward)}
+    >
       <sphereGeometry args={[1, 32, 32]} />
       <meshStandardMaterial {...textureProps} />
     </mesh>
