@@ -8,9 +8,6 @@ function Box(props: BoxProps) {
     mass: 10,
     rotation: [-Math.PI / 2, 0, 0],
     args: [10, 10, 0.5],
-    onCollide: (e: any) => {
-      console.log("BOX:", e);
-    },
     ...props
   }));
 

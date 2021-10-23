@@ -8,6 +8,11 @@
 
 3. Sistema de emparejamiento según nivel o caracteristicas (país, etc).
 
+## Camara
+
+Las Camaras de perspectiva simular a la visión real del humano, con profundidad y demás.
+Las Ortopedicas, por otro lado, no simulan la profundidad, y son utilices para visualizar UI.
+
 ## Juego
 
 ### Tecnología
