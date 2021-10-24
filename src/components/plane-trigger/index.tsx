@@ -9,7 +9,7 @@ function PlaneTrigger(props: PlaneProps) {
     ...props
   }));
 
-  return <mesh ref={ref} receiveShadow name="Plane"></mesh>;
+  return <mesh ref={ref} receiveShadow></mesh>;
 }
 
 export { PlaneTrigger };

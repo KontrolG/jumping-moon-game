@@ -1,48 +1,50 @@
-import { SphereProps, useSphere } from "@react-three/cannon";
+import { SphereProps, Triplet, useSphere } from "@react-three/cannon";
 import { useTexture } from "@react-three/drei";
-import { useThree } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
 import map from "./material-map.jpg";
 import normalMap from "./material-normal-map-2.jpg";
 import useKeyboardInput from "../../hooks/useKeyboardInput";
 import useStateMachine from "../../hooks/useStateMachine";
 
-interface MoonProps extends SphereProps {}
+interface MoonProps extends SphereProps {
+  radius?: number;
+  canMove: boolean;
+  onPositionChange?: (position: Triplet) => void;
+  initialPosition?: Triplet;
+}
 
-function Moon({ ...props }: MoonProps) {
-  const camera = useThree((state) => state.camera);
-  const cameraRef = useRef(true);
+function Moon({
+  radius = 1,
+  canMove,
+  initialPosition,
+  onPositionChange = () => {},
+  ...props
+}: MoonProps) {
   const isTouchingASurface = useRef(false);
   const [ref, api] = useSphere(() => ({
     mass: 1,
-    args: [1],
-    onCollide: (event) => {
+    args: [radius],
+    onCollide() {
       isTouchingASurface.current = true;
-      console.log("Can jump");
-      if (event.body.name === "Plane") {
-        cameraRef.current = false;
-      }
     },
-    onCollideEnd: (e) => {
+    onCollideEnd() {
       isTouchingASurface.current = false;
-      console.log("Can't jump");
     },
+    position: initialPosition,
     ...props
   }));
   const textureProps = useTexture({ map, normalMap });
   const { forward, backward, left, right, space } = useKeyboardInput();
   const velocityRef = useRef([0, 0, 0]);
-  const isMoving = forward || backward || left || right || space;
+  const isMoving = canMove && (forward || backward || left || right || space);
 
-  const { activeState, changeActiveState } = useStateMachine({
+  const { changeActiveState } = useStateMachine({
     idle: {
-      onEnter() {
-        api.velocity.set(0, 0, 0);
-      },
       onUpdate() {
         if (isMoving) {
           return changeActiveState("moving");
         }
+        // Reduce velocity slowing to 0.
       }
     },
     moving: {
@@ -72,18 +74,22 @@ function Moon({ ...props }: MoonProps) {
   }, []);
 
   useEffect(() => {
-    api.velocity.subscribe((position) => {
+    const unsubscribe = api.velocity.subscribe((position) => {
       velocityRef.current = position;
     });
-    const unsubscribe = api.position.subscribe((position) => {
-      if (!cameraRef.current) return;
-      const [x, y, z] = position;
-      camera.position.set(x - 15, y + 5, z);
-      camera.lookAt(x, y, z);
-    });
-
     return unsubscribe;
-  }, []);
+  }, [api.velocity]);
+
+  useEffect(() => {
+    const unsubscribe = api.position.subscribe(onPositionChange);
+    return unsubscribe;
+  }, [api.position, onPositionChange]);
+
+  useEffect(() => {
+    if (canMove) return;
+    api.velocity.set(0, 0, 0);
+    changeActiveState("idle");
+  }, [api.velocity, canMove, changeActiveState]);
 
   return (
     <mesh ref={ref}>
