@@ -1,0 +1,95 @@
+.HUDScreen {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+}
+
+.GameOverHUD,
+.CounterHUD {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.GameOverHUD {
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+.GameOverHUDContent {
+  text-align: center;
+}
+
+.GameOverHUDContent h1 {
+  color: white;
+  font-size: 10vw;
+  line-height: 1;
+  margin: 0;
+}
+
+.GameOverHUDContent button {
+  margin-top: 2rem;
+  background-color: white;
+  border: none;
+  border-radius: 0.15em;
+  font-size: 3vw;
+  padding: 0.375em 0.75em;
+}
+
+.GameOverHUDContent button:hover {
+  cursor: pointer;
+  background-color: rgb(230, 230, 230);
+}
+
+.CounterHUD {
+  pointer-events: none;
+}
+
+.CounterHUD div {
+  color: white;
+  font-size: 10vw;
+  cursor: default;
+  animation: appear 1s forwards;
+  user-select: none;
+}
+
+@keyframes appear {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    display: none;
+  }
+}
+
+.Instructions {
+  bottom: 2.5vw;
+  left: 2.5vw;
+  position: absolute;
+}
+
+.Key {
+  background-color: white;
+  color: black;
+  border-radius: 0.25em;
+  padding: 0.25em 0.5em;
+}
+
+.Instructions p,
+.Instructions h2 {
+  color: white;
+}
+
+.Instructions p {
+  margin: 0;
+}
+
+.Instructions p + p {
+  margin-top: 0.5em;
+}
