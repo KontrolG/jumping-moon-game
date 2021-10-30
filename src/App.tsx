@@ -16,6 +16,10 @@ import {
   MOON_RADIUS,
   POINTS_TO_WIN
 } from "./constants/configurations";
+import { Joystick } from "./components/joystick";
+import Input from "./types/Input";
+import useKeyboardInput from "./hooks/useKeyboardInput";
+import { useMediaQuery } from "./hooks/use-media-query";
 
 const getPositionWithCameraOffset = ([x, y, z]: [
   x: number,
@@ -36,6 +40,12 @@ function App() {
   const [cameraLookAt, setCameraLookAt] = useState(initialCameraLookAt);
   const [gameStatus, setGameStatus] = useState(initialGameStatus);
   const [points, setPoints] = useState(0);
+  const hasJoystickEnabled = useMediaQuery("(hover: none)");
+  const keyboardInput = useKeyboardInput();
+  const [space, setSpace] = useState(false);
+  const [joystickInput, setJoystickInput] =
+    useState<Omit<Input, "space" | "shift">>();
+  const [joystickForce, setJoystickForce] = useState(0);
 
   // Without useCallback, the camera moves glitchy.
   const updateCameraToFollowObject = useCallback(
@@ -72,6 +82,24 @@ function App() {
   const [x, y, z] = INITIAL_MOON_POSITION;
   const startBoxPosition: Triplet = [x, y - MOON_RADIUS, z];
 
+  const moonInput = hasJoystickEnabled
+    ? { ...joystickInput, space }
+    : keyboardInput;
+  const moonInputForce = hasJoystickEnabled ? joystickForce : 1;
+
+  function onMoveJoystick(_event: any, { direction, force }: any) {
+    if (!direction) {
+      setJoystickInput({});
+      setJoystickForce(0);
+      return;
+    }
+    setJoystickInput({
+      [direction?.x]: true,
+      [direction?.y === "up" ? "forward" : "backward"]: true
+    });
+    setJoystickForce(force);
+  }
+
   return (
     <div className="App">
       <HUD
@@ -79,6 +107,28 @@ function App() {
         points={points}
         onRestartGame={restartGame}
       />
+      <section className="JoystickContainer">
+        <Joystick
+          onMove={onMoveJoystick}
+          mode="static"
+          restOpacity={0.5}
+          containerStyle={{
+            background: "none",
+            width: "30%",
+            pointerEvents: "auto"
+          }}
+          position={{ top: "50%", left: "50%" }}
+          size={150}
+        />
+        <button
+          className="JumpButton"
+          type="button"
+          onTouchStart={() => setSpace(true)}
+          onTouchEnd={() => setSpace(false)}
+        >
+          Jump!
+        </button>
+      </section>
       <Canvas
         camera={{
           fov: 75,
@@ -122,6 +172,8 @@ function App() {
                 />
               ))}
             <Moon
+              input={moonInput}
+              inputForce={moonInputForce}
               radius={MOON_RADIUS}
               canMove={gameStatus === "play"}
               initialPosition={INITIAL_MOON_POSITION}

@@ -5,4 +5,5 @@
 5. ✅ Add camera logic to follow the player.
 6. ✅ Add controls to move the ball sideways and jump.
 7. ✅ Add game logic.
-8. Allow to control the moon with the motion sensor.
+8. ✅ Add joystick controls.
+9. ✅ Allow to control the moon with the joystick.
