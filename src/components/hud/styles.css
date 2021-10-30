@@ -43,11 +43,7 @@
   background-color: rgb(230, 230, 230);
 }
 
-.CounterHUD {
-  pointer-events: none;
-}
-
-.CounterHUD div {
+.CounterNumber {
   color: white;
   font-size: 10vw;
   cursor: default;
@@ -81,6 +77,10 @@
   padding: 0.25em 0.5em;
 }
 
+.Instructions h2 {
+  margin-top: 0;
+}
+
 .Instructions p,
 .Instructions h2 {
   color: white;
@@ -92,4 +92,23 @@
 
 .Instructions p + p {
   margin-top: 0.5em;
+}
+
+.JoystickInstructions {
+  display: none;
+}
+
+@media (hover: none) {
+  .Instructions {
+    top: 0.5rem;
+    bottom: unset;
+  }
+
+  .KeyboardInstructions {
+    display: none;
+  }
+
+  .JoystickInstructions {
+    display: block;
+  }
 }
