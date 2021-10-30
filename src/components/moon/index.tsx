@@ -3,14 +3,16 @@ import { useTexture } from "@react-three/drei";
 import { useEffect, useRef } from "react";
 import map from "./material-map.jpg";
 import normalMap from "./material-normal-map-2.jpg";
-import useKeyboardInput from "../../hooks/useKeyboardInput";
 import useStateMachine from "../../hooks/useStateMachine";
+import Input from "../../types/Input";
 
 interface MoonProps extends SphereProps {
   radius?: number;
   canMove: boolean;
   onPositionChange?: (position: Triplet) => void;
   initialPosition?: Triplet;
+  input?: Input;
+  inputForce?: number;
 }
 
 function Moon({
@@ -18,6 +20,8 @@ function Moon({
   canMove,
   initialPosition,
   onPositionChange = () => {},
+  input,
+  inputForce = 1,
   ...props
 }: MoonProps) {
   const isTouchingASurface = useRef(false);
@@ -34,7 +38,7 @@ function Moon({
     ...props
   }));
   const textureProps = useTexture({ map, normalMap });
-  const { forward, backward, left, right, space } = useKeyboardInput();
+  const { forward, backward, left, right, space } = input || {};
   const velocityRef = useRef([0, 0, 0]);
   const isMoving = canMove && (forward || backward || left || right || space);
 
@@ -55,10 +59,10 @@ function Moon({
         let x = 0;
         let y = velocityRef.current[1];
         let z = 0;
-        if (forward) x += 10;
-        if (backward) x -= 10;
-        if (left) z -= 10;
-        if (right) z += 10;
+        if (forward) x += 10 * inputForce;
+        if (backward) x -= 10 * inputForce;
+        if (left) z -= 10 * inputForce;
+        if (right) z += 10 * inputForce;
         if (space && isTouchingASurface.current) {
           y = 50;
           isTouchingASurface.current = false;

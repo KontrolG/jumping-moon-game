@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
+import Input from "../types/Input";
 
 // Esto puede albergarse en un state global.
 function useKeyboardInput() {
-  const [state, setState] = useState({
+  const [state, setState] = useState<Input>({
     forward: false,
     backward: false,
     left: false,
