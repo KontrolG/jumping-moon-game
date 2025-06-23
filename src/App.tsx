@@ -91,12 +91,7 @@ function App() {
 
   function restartGame() {
     // TODO: Improve this.
-    setCameraPosition(initialCameraPosition);
-    setCameraLookAt(initialCameraLookAt);
-    setGameStatus(initialGameStatus);
-    setPoints(0);
-    setActiveProjectiles([]); // Clear projectiles on restart
-    setMoonPosition(INITIAL_MOON_POSITION); // Reset moon position tracker
+    window.location.reload();
   }
 
   useEffect(() => {
