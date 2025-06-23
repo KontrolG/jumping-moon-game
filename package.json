@@ -25,7 +25,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "NODE_OPTIONS=--openssl-legacy-provider react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -49,5 +49,8 @@
   },
   "devDependencies": {
     "@types/fscreen": "^1.0.1"
+  },
+  "engines": {
+    "node": "18.x"
   }
 }

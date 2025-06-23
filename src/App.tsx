@@ -1,5 +1,6 @@
 import "./App.css";
 import { Canvas } from "@react-three/fiber";
+import * as THREE from "three"; // Added missing import
 import { Moon } from "./components/moon";
 import { PlaneTrigger } from "./components/plane-trigger";
 import { Suspense, useCallback, useEffect, useState } from "react";

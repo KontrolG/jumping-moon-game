@@ -1,12 +1,9 @@
-import { useRef } from "react";
+import { useRef, useEffect } from "react"; // Combined useEffect
 import { useFrame } from "@react-three/fiber";
 import { useCylinder } from "@react-three/cannon";
 import * as THREE from "three";
 
-import { useEffect } from "react"; // Added useEffect
-import { useFrame } from "@react-three/fiber";
-import { useCylinder } from "@react-three/cannon";
-import * as THREE from "three";
+// Removed duplicate imports of useFrame, useCylinder, and THREE
 
 interface ProjectileProps {
   id: string; // Need ID for removal
