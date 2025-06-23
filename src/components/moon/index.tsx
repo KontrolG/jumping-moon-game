@@ -20,16 +20,22 @@ function Moon({
   canMove,
   initialPosition,
   onPositionChange = () => {},
+  onHitByProjectile = () => {}, // New prop for when hit by a projectile
   input,
   inputForce = 1,
   ...props
-}: MoonProps) {
+}: MoonProps & { onHitByProjectile?: () => void }) { // Added to MoonProps type
   const isTouchingASurface = useRef(false);
   const [ref, api] = useSphere(() => ({
     mass: 1,
     args: [radius],
-    onCollide() {
+    // userData: { type: "player" }, // Optional: identify player if projectiles need to check
+    onCollide: (e) => {
       isTouchingASurface.current = true;
+      // Check if the collision is with a projectile
+      if (e.body?.userData?.type === "projectile") {
+        onHitByProjectile();
+      }
     },
     onCollideEnd() {
       isTouchingASurface.current = false;

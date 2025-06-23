@@ -10,11 +10,17 @@ import { randFloatSpread } from "three/src/math/MathUtils";
 import CameraEditor from "./components/camera-editor";
 import { HUD } from "./components/hud";
 import { PointLight } from "./components/point-light";
+import { Projectile } from "./components/projectile";
 import {
   GRAVITY,
   INITIAL_MOON_POSITION,
   MOON_RADIUS,
-  POINTS_TO_WIN
+  POINTS_TO_WIN,
+  PROJECTILE_MAX_INTERVAL,
+  PROJECTILE_MIN_INTERVAL,
+  PROJECTILE_SPAWN_HEIGHT_OFFSET,
+  PROJECTILE_SPAWN_RADIUS,
+  PROJECTILE_SPEED,
 } from "./constants/configurations";
 import { Joystick } from "./components/joystick";
 import Input from "./types/Input";
@@ -46,10 +52,23 @@ function App() {
   const [joystickInput, setJoystickInput] =
     useState<Omit<Input, "space" | "shift">>();
   const [joystickForce, setJoystickForce] = useState(0);
+  const [moonPosition, setMoonPosition] = useState<Triplet>(INITIAL_MOON_POSITION);
+
+  interface ActiveProjectile {
+    id: string;
+    position: Triplet;
+    velocity: Triplet;
+  }
+  const [activeProjectiles, setActiveProjectiles] = useState<ActiveProjectile[]>([]);
+
+  const removeProjectile = useCallback((idToRemove: string) => {
+    setActiveProjectiles((prev) => prev.filter(p => p.id !== idToRemove));
+  }, []);
 
   // Without useCallback, the camera moves glitchy.
   const updateCameraToFollowObject = useCallback(
-    (position: [number, number, number]) => {
+    (position: Triplet) => {
+      setMoonPosition(position); // Keep track of moon's position for projectiles
       if (gameStatus === "lost") return;
       setCameraPosition(getPositionWithCameraOffset(position));
       setCameraLookAt(position);
@@ -71,13 +90,68 @@ function App() {
 
   function restartGame() {
     // TODO: Improve this.
-    window.location.reload();
+    setCameraPosition(initialCameraPosition);
+    setCameraLookAt(initialCameraLookAt);
+    setGameStatus(initialGameStatus);
+    setPoints(0);
+    setActiveProjectiles([]); // Clear projectiles on restart
+    setMoonPosition(INITIAL_MOON_POSITION); // Reset moon position tracker
   }
 
   useEffect(() => {
     if (points < POINTS_TO_WIN) return;
     winGame();
   }, [points]);
+
+  // Projectile Spawning Logic
+  useEffect(() => {
+    if (gameStatus !== "play") {
+      return;
+    }
+
+    const spawnProjectile = () => {
+      const [playerX, playerY, playerZ] = moonPosition;
+
+      // Random angle around the player
+      const angle = Math.random() * Math.PI * 2;
+      const spawnX = playerX + PROJECTILE_SPAWN_RADIUS * Math.cos(angle);
+      const spawnZ = playerZ + PROJECTILE_SPAWN_RADIUS * Math.sin(angle);
+      const spawnY = playerY + PROJECTILE_SPAWN_HEIGHT_OFFSET + Math.random() * 5; // Add some randomness to height
+
+      const projectileStartPosition: Triplet = [spawnX, spawnY, spawnZ];
+
+      // Calculate direction towards player
+      const direction = new THREE.Vector3(playerX - spawnX, playerY - spawnY, playerZ - spawnZ).normalize();
+      const velocity: Triplet = [
+        direction.x * PROJECTILE_SPEED,
+        direction.y * PROJECTILE_SPEED,
+        direction.z * PROJECTILE_SPEED,
+      ];
+
+      setActiveProjectiles((prev) => [
+        ...prev,
+        { id: `proj-${Date.now()}-${Math.random()}`, position: projectileStartPosition, velocity },
+      ]);
+    };
+
+    let timeoutId: NodeJS.Timeout;
+    const scheduleNextSpawn = () => {
+      const interval = PROJECTILE_MIN_INTERVAL + Math.random() * (PROJECTILE_MAX_INTERVAL - PROJECTILE_MIN_INTERVAL);
+      timeoutId = setTimeout(() => {
+        spawnProjectile();
+        if (gameStatus === "play") { // Check again in case game status changed during timeout
+          scheduleNextSpawn();
+        }
+      }, interval);
+    };
+
+    if (gameStatus === "play") {
+      scheduleNextSpawn(); // Start the spawning cycle
+    }
+
+    return () => clearTimeout(timeoutId); // Cleanup on unmount or if game status changes
+  }, [gameStatus, moonPosition]);
+
 
   const [x, y, z] = INITIAL_MOON_POSITION;
   const startBoxPosition: Triplet = [x, y - MOON_RADIUS, z];
@@ -178,8 +252,29 @@ function App() {
               canMove={gameStatus === "play"}
               initialPosition={INITIAL_MOON_POSITION}
               onPositionChange={updateCameraToFollowObject}
+              onHitByProjectile={() => {
+                if (gameStatus === "play") { // Only lose if currently playing
+                  loseGame();
+                }
+              }}
             />
             <PlaneTrigger onCollide={loseGame} position={[0, -50, 0]} />
+
+            {activeProjectiles.map((projectile) => (
+              <Projectile
+                key={projectile.id}
+                id={projectile.id} // Pass ID for removal requests
+                position={projectile.position}
+                velocity={projectile.velocity}
+                onCollide={(collidingBodyType) => {
+                  // Remove the projectile if it hits anything.
+                  // We might want to avoid removing it if it hits another projectile in the future,
+                  // but for now, any collision removes it.
+                  removeProjectile(projectile.id);
+                }}
+                requestRemove={removeProjectile} // Pass the removal function
+              />
+            ))}
           </Physics>
         </Suspense>
       </Canvas>
